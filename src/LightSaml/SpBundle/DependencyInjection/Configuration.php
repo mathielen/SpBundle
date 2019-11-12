@@ -15,9 +15,13 @@ use LightSaml\ClaimTypes;
 use LightSaml\SpBundle\Security\User\SimpleUsernameMapper;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use LightSaml\SpBundle\Security\Authentication\EntityId\EntityIdProviderInterface as Provider;
 
 class Configuration implements ConfigurationInterface
 {
+    const CONFIGURATION_NAME = 'light_saml_sp';
+    const IDP_DATA_METADATA_PROVIDER = 'idp_data_metadata_provider';
+
     /**
      * Generates the configuration tree builder.
      *
@@ -26,7 +30,7 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $root = $treeBuilder->root('light_saml_sp');
+        $root = $treeBuilder->root(self::CONFIGURATION_NAME);
 
         $root
             ->children()
@@ -42,6 +46,22 @@ class Configuration implements ConfigurationInterface
                         SimpleUsernameMapper::NAME_ID,
                     ])
                     ->prototype('scalar')->end()
+                ->end()
+                ->scalarNode(Provider::PROVIDER_NAME)->end()
+                ->arrayNode(self::IDP_DATA_METADATA_PROVIDER)
+                    ->children()
+                        ->scalarNode('enabled')
+                            ->defaultValue(0)
+                        ->end()
+                        ->scalarNode('idp_data_url')
+                            ->isRequired()
+                            ->cannotBeEmpty()
+                        ->end()
+                        ->scalarNode('domain_resolver_url')
+                            ->isRequired()
+                            ->cannotBeEmpty()
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
         ;

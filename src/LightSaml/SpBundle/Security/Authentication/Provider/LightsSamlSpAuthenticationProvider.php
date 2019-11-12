@@ -11,6 +11,8 @@
 
 namespace LightSaml\SpBundle\Security\Authentication\Provider;
 
+use LightSaml\ClaimTypes;
+use LightSaml\SamlConstants;
 use LightSaml\SpBundle\Security\Authentication\Token\SamlSpResponseToken;
 use LightSaml\SpBundle\Security\Authentication\Token\SamlSpToken;
 use LightSaml\SpBundle\Security\Authentication\Token\SamlSpTokenFactoryInterface;
@@ -92,17 +94,12 @@ class LightsSamlSpAuthenticationProvider implements AuthenticationProviderInterf
      */
     public function authenticate(TokenInterface $token)
     {
-        if ($token instanceof SamlSpResponseToken) {
-            return $this->authenticateResponse($token);
-        } elseif ($token instanceof SamlSpToken) {
-            return $this->reauthenticate($token);
+        if (false === $this->supports($token)) {
+            throw new \LogicException('Unsupported token');
         }
 
-        throw new \LogicException(sprintf('Unsupported token %s', get_class($token)));
-    }
+        /* @var SamlSpResponseToken $token */
 
-    private function authenticateResponse(SamlSpResponseToken $token)
-    {
         $user = null;
         try {
             $user = $this->loadUser($token);
@@ -122,7 +119,6 @@ class LightsSamlSpAuthenticationProvider implements AuthenticationProviderInterf
         }
 
         if ($this->userChecker && $user instanceof UserInterface) {
-            $this->userChecker->checkPreAuth($user);
             $this->userChecker->checkPostAuth($user);
         }
 
@@ -147,19 +143,6 @@ class LightsSamlSpAuthenticationProvider implements AuthenticationProviderInterf
         return $result;
     }
 
-    private function reauthenticate(SamlSpToken $token)
-    {
-        $user = $token->getUser();
-        $result = new SamlSpToken(
-            $user instanceof UserInterface ? $user->getRoles() : $token->getRoles(),
-            $this->providerKey,
-            $token->getAttributes(),
-            $user
-        );
-
-        return $result;
-    }
-
     /**
      * Checks whether this provider supports the given token.
      *
@@ -169,7 +152,7 @@ class LightsSamlSpAuthenticationProvider implements AuthenticationProviderInterf
      */
     public function supports(TokenInterface $token)
     {
-        return $token instanceof SamlSpToken;
+        return $token instanceof SamlSpResponseToken;
     }
 
     /**
@@ -204,7 +187,7 @@ class LightsSamlSpAuthenticationProvider implements AuthenticationProviderInterf
     private function createUser(SamlSpResponseToken $token)
     {
         if (null === $this->userCreator) {
-            return null;
+            return;
         }
 
         $user = $this->userCreator->createUser($token->getResponse());
@@ -219,19 +202,40 @@ class LightsSamlSpAuthenticationProvider implements AuthenticationProviderInterf
     /**
      * @param SamlSpResponseToken $token
      *
-     * @return string
+     * @return null|string
      */
     private function createDefaultUser(SamlSpResponseToken $token)
     {
-        $result = null;
-        if ($this->usernameMapper) {
-            $result = $this->usernameMapper->getUsername($token->getResponse());
-        }
-        if (!$result) {
-            $result = 'Anon.';
+        if ($token->getResponse()->getFirstAssertion() &&
+            $token->getResponse()->getFirstAssertion()->getSubject() &&
+            $token->getResponse()->getFirstAssertion()->getSubject()->getNameID() &&
+            $token->getResponse()->getFirstAssertion()->getSubject()->getNameID()->getFormat() != SamlConstants::NAME_ID_FORMAT_TRANSIENT &&
+            $token->getResponse()->getFirstAssertion()->getSubject()->getNameID()->getValue()
+        ) {
+            return $token->getResponse()->getFirstAssertion()->getSubject()->getNameID()->getValue();
         }
 
-        return $result;
+        if ($token->getResponse()->getFirstAssertion() &&
+            $attributeStatement = $token->getResponse()->getFirstAssertion()->getFirstAttributeStatement()
+        ) {
+            $names = [
+                ClaimTypes::COMMON_NAME,
+                ClaimTypes::EMAIL_ADDRESS,
+                ClaimTypes::WINDOWS_ACCOUNT_NAME,
+                ClaimTypes::ADFS_1_EMAIL,
+                ClaimTypes::UPN,
+                ClaimTypes::ADFS_1_UPN,
+            ];
+
+            foreach ($names as $name) {
+                $attribute = $attributeStatement->getFirstAttributeByName($name);
+                if ($attribute && $attribute->getFirstAttributeValue()) {
+                    return $attribute->getFirstAttributeValue();
+                }
+            }
+        }
+
+        return;
     }
 
     /**

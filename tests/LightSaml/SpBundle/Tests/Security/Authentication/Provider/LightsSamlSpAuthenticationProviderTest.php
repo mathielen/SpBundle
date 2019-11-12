@@ -47,34 +47,10 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($provider->supports(new SamlSpResponseToken(new Response(), $providerKey)));
     }
 
-    public function test_supports_saml_sp_token()
+    public function test_does_not_support_non_saml_sp_response_token()
     {
         $provider = new LightsSamlSpAuthenticationProvider($providerKey = 'main');
-        $this->assertTrue($provider->supports(new SamlSpToken([], $providerKey, [], 'user')));
-    }
-
-    public function test_supports_reauthentication()
-    {
-        $provider = new LightsSamlSpAuthenticationProvider(
-            $providerKey = 'main',
-            $userProviderMock = $this->getUserProviderMock(),
-            false,
-            null,
-            $usernameMapperMock = $this->getUsernameMapperMock()
-        );
-
-        $user = 'some.user';
-        $roles = ['ROLE_USER'];
-        $attributes = ['a' =>1, 'b' => 'bbb'];
-        $inToken = new SamlSpToken($roles, $providerKey, $attributes, $user);
-
-        /** @var SamlSpToken $outToken */
-        $outToken = $provider->authenticate($inToken);
-        $this->assertInstanceOf(SamlSpToken::class, $outToken);
-        $this->assertEquals($user, $outToken->getUser());
-        $this->assertEquals($roles, array_map(function ($r) { return $r->getRole(); }, $outToken->getRoles()));
-        $this->assertEquals($providerKey, $outToken->getProviderKey());
-        $this->assertEquals($attributes, $outToken->getAttributes());
+        $this->assertFalse($provider->supports($this->getMockBuilder(TokenInterface::class)->getMock()));
     }
 
     public function test_creates_authenticated_token_with_user_and_his_roles()
@@ -213,10 +189,6 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $usernameMapperMock->expects($this->exactly(2))
-            ->method('getUsername')
-            ->willReturn($nameIdValue);
-
         $authenticatedToken = $provider->authenticate($token);
 
         $this->assertTrue($authenticatedToken->isAuthenticated());
@@ -253,10 +225,6 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
                 ->addAttribute(new Attribute(ClaimTypes::EMAIL_ADDRESS, $email = 'email@domain.com'))
             )
         );
-
-        $usernameMapperMock->expects($this->exactly(2))
-            ->method('getUsername')
-            ->willReturn($email);
 
         $authenticatedToken = $provider->authenticate($token);
 
@@ -315,10 +283,6 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
         $userProviderMock->expects($this->once())
             ->method('loadUserByUsername')
             ->willReturn($user);
-
-        $userCheckerMock->expects($this->once())
-            ->method('checkPreAuth')
-            ->with($user);
 
         $userCheckerMock->expects($this->once())
             ->method('checkPostAuth')
@@ -451,7 +415,7 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function test_throws_authentication_exception_when_unable_to_resolve_user()
     {
-        $provider = new LightsSamlSpAuthenticationProvider('main', null, false);
+        $provider = new LightsSamlSpAuthenticationProvider('main', null, true);
         $provider->authenticate(new SamlSpResponseToken(new Response(), 'main'));
     }
 
@@ -460,7 +424,7 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
      */
     private function getUserCheckerMock()
     {
-        return $this->getMockBuilder(\Symfony\Component\Security\Core\User\UserCheckerInterface::class)->getMock();
+        return $this->getMockBuilder('Symfony\Component\Security\Core\User\UserCheckerInterface')->getMock();
     }
 
     /**
@@ -468,7 +432,7 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
      */
     private function getUserMock()
     {
-        return $this->getMockBuilder(\Symfony\Component\Security\Core\User\UserInterface::class)->getMock();
+        return $this->getMockBuilder('Symfony\Component\Security\Core\User\UserInterface')->getMock();
     }
 
     /**
@@ -476,7 +440,7 @@ class LightsSamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
      */
     private function getUserProviderMock()
     {
-        return $this->getMockBuilder(\Symfony\Component\Security\Core\User\UserProviderInterface::class)->getMock();
+        return $this->getMockBuilder('Symfony\Component\Security\Core\User\UserProviderInterface')->getMock();
     }
 
     /**

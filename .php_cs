@@ -1,26 +1,28 @@
 <?php
 
-$finder = PhpCsFixer\Finder::create()
-    ->in('src')
-;
+// for more info see:
+// https://github.com/FriendsOfPHP/PHP-CS-Fixer#usage
+// https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/master/UPGRADE.md
 
-$header = <<<EOT
-This file is part of the LightSAML SP-Bundle package.
+if (class_exists('PhpCsFixer\Finder')) {    // PHP-CS-Fixer 2.x
+    $finder = PhpCsFixer\Finder::create()
+        ->in(__DIR__)
+    ;
 
-(c) Milos Tomic <tmilos@lightsaml.com>
+    return PhpCsFixer\Config::create()
+        ->setRules(array(
+            '@PSR2' => true,
+        ))
+        ->setFinder($finder)
+    ;
+} elseif (class_exists('Symfony\CS\Finder\DefaultFinder')) {  // PHP-CS-Fixer 1.x
+    $finder = Symfony\CS\Finder\DefaultFinder::create()
+        ->in(__DIR__)
+    ;
 
-This source file is subject to the MIT license that is bundled
-with this source code in the file LICENSE.
-EOT;
-
-return PhpCsFixer\Config::create()
-    ->setRules(array(
-        '@Symfony' => true,
-        'simplified_null_return' => false,
-        'phpdoc_no_empty_return' => false,
-        'no_mixed_echo_print' => ['use' => 'print'],
-        'header_comment' => ['header' => $header],
-    ))
-    ->setUsingCache(false)
-    ->setFinder($finder)
-;
+    return Symfony\CS\Config\Config::create()
+        ->level(Symfony\CS\FixerInterface::PSR2_LEVEL)
+        ->fixers(['-psr0'])    // don't lowercase namespace (use "namespace App\.." instead of "namespace app\..") to be compatible with Laravel 5
+        ->finder($finder)
+    ;
+}

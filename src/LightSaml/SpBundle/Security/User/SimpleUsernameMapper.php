@@ -44,7 +44,7 @@ class SimpleUsernameMapper implements UsernameMapperInterface
             }
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -59,7 +59,7 @@ class SimpleUsernameMapper implements UsernameMapperInterface
                 if ($assertion->getSubject() &&
                     $assertion->getSubject()->getNameID() &&
                     $assertion->getSubject()->getNameID()->getValue() &&
-                    SamlConstants::NAME_ID_FORMAT_TRANSIENT != $assertion->getSubject()->getNameID()->getFormat()
+                    $assertion->getSubject()->getNameID()->getFormat() != SamlConstants::NAME_ID_FORMAT_TRANSIENT
                 ) {
                     return $assertion->getSubject()->getNameID()->getValue();
                 }
@@ -73,6 +73,6 @@ class SimpleUsernameMapper implements UsernameMapperInterface
             }
         }
 
-        return null;
+        return;
     }
 }

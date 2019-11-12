@@ -1,3 +1,6 @@
+imports:
+    - { resource: services.yml }
+
 framework:
     secret:          secret
     test:            ~
@@ -5,7 +8,7 @@ framework:
     csrf_protection: ~
     templating:      { engines: ['twig'] }
     session:
-        storage_id:  session.mock_storage
+        handler_id:  session.handler.native_file
 
 monolog:
     handlers:
@@ -15,7 +18,7 @@ monolog:
             handler:      nested
         nested:
             type:  stream
-            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+            path:  %kernel.logs_dir%/%kernel.environment%.log
             level: debug
 
 security:
@@ -25,6 +28,11 @@ security:
     firewalls:
         dummy:
             provider: dummy
+            logout:
+                path: lightsaml_sp.logout
+                target: default
+                invalidate_session: false
+                success_handler: security.firewall.logout_handler.lightsaml_sp
             anonymous: ~
 
 light_saml_symfony_bridge:
@@ -32,23 +40,23 @@ light_saml_symfony_bridge:
         entity_id: https://localhost/lightSAML/SPBundle
         credentials:
             -
-                certificate: "%kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/saml.crt"
-                key:         "%kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/saml.key"
+                certificate: %kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/saml.crt
+                key:         %kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/saml.key
                 password:    ~
     party:
         idp:
             files:
-                - "%kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/openidp.feide.no.xml"
-                - "%kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/localhost-lightsaml-lightsaml-idp.xml"
-                - "%kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/testshib-providers.xml"
+                - %kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/openidp.feide.no.xml
+                - %kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/localhost-lightsaml-lightsaml-idp.xml
+                - %kernel.root_dir%/../../../../../../vendor/lightsaml/lightsaml/web/sp/testshib-providers.xml
     store:
         id_state: id_store
 
 services:
-    session.mock_storage:
-        class: Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage
     id_store:
         class: LightSaml\Store\Id\IdArrayStore
-    lightsaml.store.sso_state:
-        class: LightSaml\Store\Sso\SsoStateFixedStore
-        public: true
+
+parameters:
+    light_saml_sp.idp_data_metadata_provider.enabled: false
+    light_saml_sp.idp_data_metadata_provider.idp_data_url: http://localhost:9092
+    light_saml_sp.idp_data_metadata_provider.domain_resolver_url: http://localhost:9092

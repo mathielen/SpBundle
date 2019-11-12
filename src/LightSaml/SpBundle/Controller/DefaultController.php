@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the LightSAML SP-Bundle package.
  *
@@ -8,7 +7,6 @@
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
-
 namespace LightSaml\SpBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -31,8 +29,8 @@ class DefaultController extends Controller
     {
         $parties = $this->get('lightsaml.container.build')->getPartyContainer()->getIdpEntityDescriptorStore()->all();
 
-        if (1 == count($parties)) {
-            return $this->redirect($this->generateUrl('lightsaml_sp.login', ['idp' => $parties[0]->getEntityID()]));
+        if (count($parties) == 1) {
+            return $this->redirectToRoute('lightsaml_sp.login', ['idp' => $parties[0]->getEntityID()]);
         }
 
         return $this->render('LightSamlSpBundle::discovery.html.twig', [
@@ -42,9 +40,15 @@ class DefaultController extends Controller
 
     public function loginAction(Request $request)
     {
+        $user = $this->getUser();
+
+        if (null !== $user) {
+            return $this->redirectToRoute('homepage');
+        }
+
         $idpEntityId = $request->get('idp');
         if (null === $idpEntityId) {
-            return $this->redirect($this->generateUrl($this->container->getParameter('lightsaml_sp.route.discovery')));
+            return $this->redirectToRoute($this->getParameter('lightsaml_sp.route.discovery'));
         }
 
         $profile = $this->get('ligthsaml.profile.login_factory')->get($idpEntityId);
