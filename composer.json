@@ -30,8 +30,9 @@
     "require-dev": {
         "helmich/phpunit-psr7-assert": "^1.1",
         "php-http/mock-client": "^0.3.3",
-        "phpunit/phpunit": "~5.4",
-        "symfony/symfony": "~2.4|~3.0",
+        "phpunit/phpunit": "~4.6|~5.3",
+        "symfony/symfony": "~2.3|~3.0|~4.0",
+        "symfony/monolog-bundle": "~2.3|~3.0|~4.0",
         "satooshi/php-coveralls": "~0.6",
         "internations/http-mock": "^0.8.1"
     },
