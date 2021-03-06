@@ -28,6 +28,7 @@ class LightSamlSpFactory extends AbstractFactory
                 ->booleanNode('force')->defaultTrue()->end()
                 ->scalarNode('username_mapper')->defaultValue('lightsaml_sp.username_mapper.simple')->end()
                 ->scalarNode('user_creator')->defaultNull()->end()
+				->scalarNode('user_checker')->defaultNull()->end()
                 ->scalarNode('attribute_mapper')->defaultValue('lightsaml_sp.attribute_mapper.simple')->end()
                 ->scalarNode('token_factory')->defaultValue('lightsaml_sp.token_factory')->end()
             ->end()
@@ -70,6 +71,9 @@ class LightSamlSpFactory extends AbstractFactory
         if (isset($config['user_creator'])) {
             $provider->replaceArgument(5, new Reference($config['user_creator']));
         }
+		if (isset($config['user_checker'])) {
+			$provider->replaceArgument(3, new Reference($config['user_checker']));
+		}
         if (isset($config['attribute_mapper'])) {
             $provider->replaceArgument(6, new Reference($config['attribute_mapper']));
         }
