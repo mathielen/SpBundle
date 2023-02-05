@@ -23,8 +23,10 @@
         "symfony/framework-bundle": "^4.4|^5.4",
         "symfony/security-bundle": "^4.4|^5.4",
         "symfony/expression-language": "^4.4|^5.4",
-        "lightsaml/symfony-bridge": "~1.0",
-        "symfony/monolog-bundle": "~2.3|~3.0",
+        "symfony/dependency-injection": "^4.4|^5.4",
+        "symfony/yaml": "^4.4|^5.4",
+        "symfony/monolog-bundle": "^3.5|^3.8",
+        "litesaml/lightsaml": "^1.4|^4.0.1",
         "php-http/guzzle6-adapter": "^2.0"
     },
     "require-dev": {
