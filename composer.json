@@ -19,10 +19,10 @@
         }
     },
     "require": {
-        "php": ">=7.1",
-        "symfony/framework-bundle": "~2.4|~3.0|~4.0",
-        "symfony/security-bundle": "~2.3|~3.0|~4.0",
-        "symfony/expression-language": "~2.3|~3.0|~4.0",
+        "php": "^7.4|^8.0",
+        "symfony/framework-bundle": "^4.4|^5.4",
+        "symfony/security-bundle": "^4.4|^5.4",
+        "symfony/expression-language": "^4.4|^5.4",
         "lightsaml/symfony-bridge": "~1.0",
         "symfony/monolog-bundle": "~2.3|~3.0",
         "php-http/guzzle6-adapter": "^2.0"
