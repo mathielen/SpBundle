@@ -15,7 +15,9 @@
     "autoload": {
         "psr-0": {
             "LightSaml\\SpBundle\\Tests\\": "tests/",
-            "LightSaml\\SpBundle\\": "src/"
+            "LightSaml\\SpBundle\\": "src/",
+            "LightSaml\\SymfonyBridgeBundle\\Tests\\": "tests/",
+            "LightSaml\\SymfonyBridgeBundle\\": "src/"
         }
     },
     "require": {
