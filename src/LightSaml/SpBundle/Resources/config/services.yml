@@ -8,6 +8,10 @@ services:
         autoconfigure: true
 
     LightSaml\SpBundle\Controller\DefaultController:
+        arguments:
+            - "@ligthsaml.profile.metadata"
+            - "@lightsaml.container.build"
+            - "@ligthsaml.profile.login_factory"
         tags: ['controller.service_arguments']
 
     lightsaml_sp.username_mapper.simple:
