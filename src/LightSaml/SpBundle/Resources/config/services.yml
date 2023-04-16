@@ -3,6 +3,9 @@ parameters:
     lightsaml.route.login_check: lightsaml_sp.login_check
 
 services:
+    LightSaml\SpBundle\Controller\DefaultController:
+        tags: ['controller.service_arguments']
+
     lightsaml_sp.username_mapper.simple:
         class: LightSaml\SpBundle\Security\User\SimpleUsernameMapper
         arguments:
