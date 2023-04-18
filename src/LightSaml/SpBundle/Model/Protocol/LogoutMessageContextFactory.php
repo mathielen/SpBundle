@@ -118,7 +118,9 @@ class LogoutMessageContextFactory
      */
     private function getIdpSsoDescriptor()
     {
-        return $this->entityDescriptorStore->get(0)->getFirstIdpSsoDescriptor();
+		$entityDescriptor = $this->entityDescriptorStore->get(0);
+
+        return $entityDescriptor ? $entityDescriptor->getFirstIdpSsoDescriptor() : null;
     }
 
     /**
