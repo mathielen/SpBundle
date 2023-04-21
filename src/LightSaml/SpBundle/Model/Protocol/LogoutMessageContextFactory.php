@@ -21,6 +21,7 @@ use LightSaml\Model\Protocol\SamlMessage;
 use LightSaml\Model\Protocol\Status;
 use LightSaml\Model\Protocol\StatusCode;
 use LightSaml\SamlConstants;
+use LightSaml\SpBundle\Store\EntityDescriptor\IdpDataEntityDescriptorStore;
 use LightSaml\State\Sso\SsoSessionState;
 use LightSaml\Store\EntityDescriptor\EntityDescriptorStoreInterface;
 
@@ -118,9 +119,9 @@ class LogoutMessageContextFactory
      */
     private function getIdpSsoDescriptor()
     {
-		$entityDescriptor = $this->entityDescriptorStore->get(0);
+		$entityDescriptor = $this->entityDescriptorStore->all()[0];
 
-        return $entityDescriptor ? $entityDescriptor->getFirstIdpSsoDescriptor() : null;
+        return $entityDescriptor->getFirstIdpSsoDescriptor();
     }
 
     /**
