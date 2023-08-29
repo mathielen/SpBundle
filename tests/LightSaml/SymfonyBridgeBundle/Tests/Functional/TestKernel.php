@@ -14,8 +14,8 @@ class TestKernel extends Kernel
      *
      * @return iterable|BundleInterface[] An iterable of bundle instances
      */
-    public function registerBundles()
-    {
+    public function registerBundles(): iterable
+	{
         $bundles = [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new \LightSaml\SymfonyBridgeBundle\LightSamlSymfonyBridgeBundle(),

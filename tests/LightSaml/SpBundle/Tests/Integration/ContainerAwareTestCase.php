@@ -27,13 +27,8 @@ class ContainerAwareTestCase extends WebTestCase
         $this->container = static::$kernel->getContainer();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+	{
         parent::tearDown();
-    }
-
-    protected function getContainer()
-    {
-        return $this->container;
     }
 }

@@ -36,55 +36,6 @@ class LightSamlSpFactory extends AbstractFactory
     }
 
     /**
-     * Subclasses must return the id of a service which implements the
-     * AuthenticationProviderInterface.
-     *
-     * @param ContainerBuilder $container
-     * @param string           $id             The unique id of the firewall
-     * @param array            $config         The options array for this listener
-     * @param string           $userProviderId The id of the user provider
-     *
-     * @return string never null, the id of the authentication provider
-     */
-    protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
-    {
-        if (class_exists('Symfony\Component\DependencyInjection\ChildDefinition')) {
-            // Symfony >= 3.3
-            $definition = new ChildDefinition('security.authentication.provider.lightsaml_sp');
-        } else {
-            // Symfony < 3.3
-            $definition = new DefinitionDecorator('security.authentication.provider.lightsaml_sp');
-        }
-
-        $providerId = 'security.authentication.provider.lightsaml_sp.'.$id;
-        $provider = $container
-            ->setDefinition($providerId, $definition)
-            ->replaceArgument(0, $id)
-            ->replaceArgument(2, $config['force'])
-        ;
-        if (isset($config['provider'])) {
-            $provider->replaceArgument(1, new Reference($userProviderId));
-        }
-        if (isset($config['username_mapper'])) {
-            $provider->replaceArgument(4, new Reference($config['username_mapper']));
-        }
-        if (isset($config['user_creator'])) {
-            $provider->replaceArgument(5, new Reference($config['user_creator']));
-        }
-		if (isset($config['user_checker'])) {
-			$provider->replaceArgument(3, new Reference($config['user_checker']));
-		}
-        if (isset($config['attribute_mapper'])) {
-            $provider->replaceArgument(6, new Reference($config['attribute_mapper']));
-        }
-        if (isset($config['token_factory'])) {
-            $provider->replaceArgument(7, new Reference($config['token_factory']));
-        }
-
-        return $providerId;
-    }
-
-    /**
      * Subclasses must return the id of the listener template.
      *
      * Listener definitions should inherit from the AbstractAuthenticationListener
@@ -104,19 +55,8 @@ class LightSamlSpFactory extends AbstractFactory
         return 'security.authentication.listener.lightsaml_sp';
     }
 
-    /**
-     * Defines the position at which the provider is called.
-     * Possible values: pre_auth, form, http, and remember_me.
-     *
-     * @return string
-     */
-    public function getPosition()
-    {
-        return 'form';
-    }
-
-    public function getKey()
-    {
+    public function getKey(): string
+	{
         return 'light_saml_sp';
     }
 
@@ -141,4 +81,41 @@ class LightSamlSpFactory extends AbstractFactory
 
         return $entryPointId;
     }
+
+	public function getPriority(): int
+	{
+		return -30;
+	}
+
+	public function createAuthenticator(ContainerBuilder $container, string $firewallName, array $config, string $userProviderId): string|array
+	{
+		$definition = new ChildDefinition('security.authentication.provider.lightsaml_sp');
+
+		$providerId = 'security.authentication.provider.lightsaml_sp.'.$userProviderId;
+		$provider = $container
+			->setDefinition($providerId, $definition)
+			->replaceArgument(0, $userProviderId)
+			->replaceArgument(2, $config['force'])
+		;
+		if (isset($config['provider'])) {
+			$provider->replaceArgument(1, new Reference($userProviderId));
+		}
+		if (isset($config['username_mapper'])) {
+			$provider->replaceArgument(4, new Reference($config['username_mapper']));
+		}
+		if (isset($config['user_creator'])) {
+			$provider->replaceArgument(5, new Reference($config['user_creator']));
+		}
+		if (isset($config['user_checker'])) {
+			$provider->replaceArgument(3, new Reference($config['user_checker']));
+		}
+		if (isset($config['attribute_mapper'])) {
+			$provider->replaceArgument(6, new Reference($config['attribute_mapper']));
+		}
+		if (isset($config['token_factory'])) {
+			$provider->replaceArgument(7, new Reference($config['token_factory']));
+		}
+
+		return $providerId;
+	}
 }

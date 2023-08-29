@@ -27,6 +27,6 @@ class LightSamlSpBundle extends Bundle
         $container->addCompilerPass(new InjectEntityIdProviderCompilerPass());
 
         $extension = $container->getExtension('security');
-        $extension->addSecurityListenerFactory(new LightSamlSpFactory());
+        $extension->addAuthenticatorFactory(new LightSamlSpFactory());
     }
 }
