@@ -28,8 +28,8 @@ services:
             - "%lightsaml.own.entity_id%"
             - "@lightsaml.party.idp_entity_descriptor_store"
 
-    http_client:
-        class: Http\Adapter\Guzzle6\Client
+    #http_client:
+    #    class: Http\Adapter\Guzzle6\Client
 
     lightsaml_sp.idp_data_api.http:
         class: LightSaml\SpBundle\Infrastructure\IdpData\HttpApi
